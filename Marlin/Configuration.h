@@ -68,8 +68,8 @@
 // Horizontal offset from middle of printer to smooth rod center.
 //#define DELTA_SMOOTH_ROD_OFFSET 188.85// mm (137.0  187) 
 //#define MANUAL_Z_HOME_POS 275.65// For delta: Distance between nozzle and print surface after homing.
-#define DELTA_SMOOTH_ROD_OFFSET 188.85// mm (137.0  187) 
-#define MANUAL_Z_HOME_POS 275.45// For delta: Distance between nozzle and print surface after homing.
+#define DELTA_SMOOTH_ROD_OFFSET 188.5// mm (137.0  187) 
+#define MANUAL_Z_HOME_POS 274.5// For delta: Distance between nozzle and print surface after homing.
 
 // Horizontal offset of the universal joints on the end effector.
 #define DELTA_EFFECTOR_OFFSET 24// mm (19.9)
