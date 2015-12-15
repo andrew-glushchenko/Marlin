@@ -286,7 +286,7 @@ your extruder heater takes 2 minutes to hit the target on heating.
   //#define ENDSTOPPULLUP_ZMAX
   #define ENDSTOPPULLUP_XMIN
   //#define ENDSTOPPULLUP_YMIN
-  //#define ENDSTOPPULLUP_ZMIN
+  #define ENDSTOPPULLUP_ZMIN
 #endif
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
@@ -397,9 +397,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   //X:-19.00 Y:-20.00 Z:2.80
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 20
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 19.5
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.8
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 12
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 21
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -3.1
 
   #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -731,7 +731,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Use M206 command to correct for switch height offset to actual nozzle height. Store that setting with M500.
 //
 #define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
-#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 3, 87} // X,Y,Z Axis Extend and Retract angles
+#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 33, 115} // X,Y,Z Axis Extend and Retract angles
 
 /**********************************************************************\
  * Support for a filament diameter sensor
