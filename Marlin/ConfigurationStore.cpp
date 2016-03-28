@@ -200,11 +200,12 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR(" Z" ,endstop_adj[Z_AXIS] );
 	SERIAL_ECHOLN("");
 	SERIAL_ECHO_START;
-	SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
+	SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second, Z=max_z_height");
 	SERIAL_ECHO_START;
 	SERIAL_ECHOPAIR("  M665 L",delta_diagonal_rod );
 	SERIAL_ECHOPAIR(" R" ,delta_radius );
 	SERIAL_ECHOPAIR(" S" ,delta_segments_per_second );
+  SERIAL_ECHOPAIR(" Z" ,max_pos[Z_AXIS]);
 	SERIAL_ECHOLN("");
 #endif
 #ifdef PIDTEMP
@@ -395,7 +396,9 @@ void Config_ResetDefault()
     max_e_jerk=DEFAULT_EJERK;
     add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
 #ifdef DELTA
-	endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
+	endstop_adj[X_AXIS] = X_ENDSTOP_OFFSET;
+        endstop_adj[Y_AXIS] = Y_ENDSTOP_OFFSET;
+        endstop_adj[Z_AXIS] = Z_ENDSTOP_OFFSET;
 	delta_radius= DELTA_RADIUS;
 	delta_diagonal_rod= DELTA_DIAGONAL_ROD;
 	delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;

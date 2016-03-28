@@ -235,7 +235,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homing[3]={0,0,0};
 #ifdef DELTA
-float endstop_adj[3]={0,0,0};
+float endstop_adj[3]={X_ENDSTOP_OFFSET, Y_ENDSTOP_OFFSET, Z_ENDSTOP_OFFSET};
 #endif
 
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
@@ -871,11 +871,15 @@ static inline type array(int axis)          \
     { return pgm_read_any(&array##_P[axis]); }
 
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,    MIN_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,    MAX_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,   HOME_POS);
-XYZ_CONSTS_FROM_CONFIG(float, max_length,      MAX_LENGTH);
+XYZ_CONSTS_FROM_CONFIG(float, base_max_pos_config,    MAX_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_home_pos_config,   HOME_POS);
+XYZ_CONSTS_FROM_CONFIG(float, max_len,      MAX_LENGTH);
 XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
+
+float max_length[3] = {max_len(X_AXIS), max_len(Y_AXIS),max_len(Z_AXIS)};
+float base_max_pos[3] = {base_max_pos_config(X_AXIS), base_max_pos_config(Y_AXIS), base_max_pos_config(Z_AXIS)};
+float base_home_pos[3] = {base_home_pos_config(X_AXIS), base_home_pos_config(Y_AXIS), base_home_pos_config(Z_AXIS)};
 
 #ifdef DUAL_X_CARRIAGE
   #if EXTRUDERS == 1 || defined(COREXY) \
@@ -984,9 +988,9 @@ static void axis_is_at_home(int axis) {
       max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
    }
 #else
-  current_position[axis] = base_home_pos(axis) + add_homing[axis];
+  current_position[axis] = base_home_pos[axis] + add_homing[axis];
   min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
-  max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
+  max_pos[axis] =          base_max_pos[axis] + add_homing[axis];
 #endif
 }
 
@@ -1209,7 +1213,7 @@ static void homeaxis(int axis) {
       }
     #endif
 #endif // Z_PROBE_SLED
-    destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
+    destination[axis] = 1.5 * max_length[axis] * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1262,6 +1266,13 @@ static void homeaxis(int axis) {
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
+void set_delta_constants()
+{
+  max_length[Z_AXIS] = max_pos[Z_AXIS] - Z_MIN_POS;
+  base_max_pos[Z_AXIS]  = max_pos[Z_AXIS];
+  base_home_pos[Z_AXIS] = max_pos[Z_AXIS];
+}
 
 void refresh_cmd_timeout(void)
 {
@@ -1505,14 +1516,14 @@ void process_commands()
        #endif
 
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
+        destination[X_AXIS] = 1.5 * max_length[X_AXIS] * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length[Y_AXIS] * home_dir(Y_AXIS);
         feedrate = homing_feedrate[X_AXIS];
         if(homing_feedrate[Y_AXIS]<feedrate)
           feedrate = homing_feedrate[Y_AXIS];
-        if (max_length(X_AXIS) > max_length(Y_AXIS)) {
-          feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
+        if (max_length[X_AXIS] > max_length[Y_AXIS]) {
+          feedrate *= sqrt(pow(max_length[Y_AXIS] / max_length[X_AXIS], 2) + 1);
         } else {
-          feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
+          feedrate *= sqrt(pow(max_length[X_AXIS] / max_length[Y_AXIS], 2) + 1);
         }
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
@@ -2940,6 +2951,10 @@ Sigma_Exit:
 		if(code_seen('S')) {
 			delta_segments_per_second= code_value();
 		}
+    if (code_seen('Z')) {
+      max_pos[Z_AXIS]= code_value();
+      set_delta_constants();
+    }
 		
 		recalc_delta_settings(delta_radius, delta_diagonal_rod);
 		break;
@@ -4008,6 +4023,7 @@ void recalc_delta_settings(float radius, float diagonal_rod)
 	 delta_tower3_x= 0.0;                  // back middle tower
 	 delta_tower3_y= radius;
 	 delta_diagonal_rod_2= sq(diagonal_rod);
+   SERIAL_ECHOPGM("delta_tower1_x="); SERIAL_ECHO(delta_tower1_x);
 }
 
 void calculate_delta(float cartesian[3])
